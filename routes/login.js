@@ -25,11 +25,11 @@ router.post("/user/log_in", async (req, res) => {
             // si le hash du mot de passe qu'il vient de saisir est le même que le hash enregistré en BDD lors de son inscription, alors c'est bon !
             if (SHA256(req.fields.password + user.salt).toString(encBase64) === user.hash) {
                 return res.json({
-                    _id: body._id,
-                    token: body.token,
+                    _id: user._id,
+                    token: user.token,
                     account: {
-                        username: body.username,
-                        phone: body.username
+                        username: user.account.username,
+                        phone: user.account.phone
                     }
                 })
 
