@@ -7,10 +7,11 @@ const app = express();
 app.use(formidableMiddleWare());
 
 
-
-const userRoutes = require("./routes/users")
-const loginRoutes = require("./routes/login")
-app.use(userRoutes,loginRoutes);
+// Importation des routes !
+const userRoutes = require("./routes/users");
+const loginRoutes = require("./routes/login");
+const annonceRoute = require("./routes/annonce");
+app.use(userRoutes,loginRoutes,annonceRoute);
 
 
 app.all("*", function (req, res) {
