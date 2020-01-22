@@ -3,7 +3,7 @@ const router = express.Router();
 
 //importation des models
 const User = require('../models/userModel');
-const Annonce = require('../models/annonceModel');
+
 
 //parametres pour crypter le password
 const uid2 = require("uid2");
