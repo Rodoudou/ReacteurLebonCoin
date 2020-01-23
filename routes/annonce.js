@@ -58,7 +58,6 @@ console.log(newAnnonce)
 
         // Ici renvoyer une reponse de la data de l'Annonce avec la reference de l'user
 
-
     } catch (error) {
         res.status(400).json({
             error: error.message
@@ -66,6 +65,30 @@ console.log(newAnnonce)
     }
 
 });
+
+
+const createFilters= req =>{
+    const filters={},
+
+    if(req.query.priceMin){
+        filters.price={};
+        filters.price.$gte = req.query.priceMin;
+    }
+    if(req.query.priceMax){
+        if(filters.price === undefined){
+            filters.price={};
+        }
+        filters.price.$lte = req.query.priceMax;
+    }
+    
+    if(req.query.price.title){
+        filters.title = new RegExp(req.query.title, "i");
+    }
+    return filters;
+
+};
+
+
 
 
 
