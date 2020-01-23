@@ -1,7 +1,9 @@
+require('dotenv').config();
 const mongoose = require("mongoose");
 
+
 mongoose.connect(
-    "mongodb://localhost/leboncoin-app", {
+    process.env.MONGODB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useCreateIndex : true 
