@@ -28,7 +28,8 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
         // description : 500 caractères
         // title : 50 caractères
         //  price : 100 000
-        console.log('body.title.length', body.title.length)
+        /*         console.log('body.title.length', body.title.length)
+         */
         if (body.title.length > 50 || body.description.length > 500) {
             return res.json({
                 error: 'vous avez depasser le nbr de caracteres'
@@ -41,7 +42,7 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
             //###############################################################
 
             await newAnnonce.save();
-            console.log(newAnnonce)
+            /*      console.log(newAnnonce) */
             // on cherche tous les Annonces qui ont pour mail le mail reçu
 
             res.json({
@@ -72,12 +73,12 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
 
 
 const createFilters = req => {
-    const filters = {},
-
-        if (req.query.priceMin) {
-            filters.price = {};
-            filters.price.$gte = req.query.priceMin;
-        }
+    console.log('### req =>', req)
+    const filters = {};
+    if (req.query.priceMin) {
+        filters.price = {};
+        filters.price.$gte = req.query.priceMin;
+    }
     if (req.query.priceMax) {
         if (filters.price === undefined) {
             filters.price = {};
@@ -85,7 +86,7 @@ const createFilters = req => {
         filters.price.$lte = req.query.priceMax;
     }
 
-    if (req.query.price.title) {
+    if (req.query.title) {
         filters.title = new RegExp(req.query.title, "i");
     }
     return filters;
@@ -93,34 +94,61 @@ const createFilters = req => {
 };
 
 // offer/with-count
-router.get("/offer/with-count", isAuthenticated, async (req, res) => {
-    const filters = createFilters(req);
+router.get("/offer/with-count", async (req, res) => {
+    try {
 
-    // Ici, nous construisons notre recherche
-    const search = product.find(filters).populate("category");
+        const filters = createFilters(req);
 
-    if (req.query.sort === "price-desc") {
-        // Ici, nous continuons de construire notre recherche
-        search.sort({
-            price: 1
+        // Ici, nous construisons notre recherche
+        const search = Annonce.find(filters).populate("creator");
+
+        if (req.query.sort === "price-desc") {
+            // Ici, nous continuons de construire notre recherche
+            search.sort({
+                price: 1
+            });
+        } else if (req.query.sort === "price-desc") {
+            // Ici, nous continuons de construire notre recherche
+            search.sort({
+                price: -1
+            });
+        }
+        // limit : le nombre de résultats affichés
+        // skip : Ignorer les X premiers
+        if (req.query.page) {
+            const page = req.query.page;
+            const limit = 4;
+
+            search.limit(limit * (page - 1));
+        }
+        // la recherche est déclenchée grâce au await
+        const products = await search;
+        res.json({
+            products
         });
-    } else if (req.query.sort === "price-desc") {
-        // Ici, nous continuons de construire notre recherche
-        search.sort({
-            price: -1
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
         });
     }
-                    // limit : le nombre de résultats affichés
-                    // skip : Ignorer les X premiers
-    if(req.query.page){
-        const page = req.query.page;
-        const limit = 4;
 
-        search.limit(limit*(page-1));
+});
+
+// offer/:id => Service web qui permettra de récupérer 
+//les détails concernant une annonce, en fonction de son id.
+router.get("/offer/:id", async (req, res) => {
+const id = req.params.id;
+console.log('#####=>',req.params)
+    try {
+        const dataAnnonce = await Annonce.findById(req.params.id);
+        
+        res.json(dataAnnonce)
+    } catch (error) {
+
+        res.status(400).json({
+            error: error.message
+        });
     }
-    // la recherche est déclenchée grâce au await
-    const products = await search;
-    res.json(products);
 
 });
 
