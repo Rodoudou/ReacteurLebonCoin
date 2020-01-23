@@ -40,7 +40,8 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
             })
         } else {
             //###############################################################
-
+/*             const search = Annonce.find(filters).populate("creator");
+ */
             await newAnnonce.save();
             /*      console.log(newAnnonce) */
             // on cherche tous les Annonces qui ont pour mail le mail reçu
@@ -140,8 +141,10 @@ router.get("/offer/:id", async (req, res) => {
 const id = req.params.id;
 console.log('#####=>',req.params)
     try {
-        const dataAnnonce = await Annonce.findById(req.params.id);
-        
+        const dataAnnonce = await  Annonce.findById(req.params.id).populate("creator");
+
+
+
         res.json(dataAnnonce)
     } catch (error) {
 
