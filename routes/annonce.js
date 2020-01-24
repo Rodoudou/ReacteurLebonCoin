@@ -21,30 +21,26 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
             price: body.price,
             creator: req.user
         };
-        const newAnnonce = new Annonce({
-            obj
-        });
+
+        const newAnnonce = new Annonce({obj});
         await newAnnonce.save();
         /*      console.log(newAnnonce) */
         // on cherche tous les Annonces qui ont pour mail le mail reçu
 
         res.json({
             _id: newAnnonce._id,
-            title: body.title,
-            description: body.description,
-            price: body.price,
-            created: Date.now(),
+            title: newAnnonce.title,
+            description: newAnnonce.description,
+            price: newAnnonce.price,
+            created:newAnnonce.created,
             creator: {
-                account: {
-                    username: req.user.account.username,
-                    phone: req.user.account.phone
-                },
-                _id: req.user._id
+                account: newAnnonce.account.username,
+                _id: newAnnonce._id
             }
         });
 
 } catch (error) {
-    res.status(400).json({
+    res.json(400).json({
         error: error.message
     });
 }
@@ -53,7 +49,6 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
 
 // fonction qui va construire un objet de filtres, que l'on enverra ensuite dans le find()
 const createFilters = req => {
-    console.log('### req =>', req)
     const filters = {};
     if (req.query.priceMin) {
         filters.price = {};
