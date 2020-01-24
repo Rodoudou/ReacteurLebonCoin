@@ -15,64 +15,43 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
     const body = req.fields;
 
     try {
+        const obj = {
+            title: body.title,
+            description: body.description,
+            price: body.price,
+            creator: req.user
+        };
         const newAnnonce = new Annonce({
+            obj
+        });
+        await newAnnonce.save();
+        /*      console.log(newAnnonce) */
+        // on cherche tous les Annonces qui ont pour mail le mail reçu
+
+        res.json({
+            _id: newAnnonce._id,
             title: body.title,
             description: body.description,
             price: body.price,
             created: Date.now(),
-            creator: req.user
+            creator: {
+                account: {
+                    username: req.user.account.username,
+                    phone: req.user.account.phone
+                },
+                _id: req.user._id
+            }
         });
-        //###############################################################
 
-        // faire en sorte que le titre, la description et le prix soit limités à :
-        // description : 500 caractères
-        // title : 50 caractères
-        //  price : 100 000
-        /*         console.log('body.title.length', body.title.length)
-         */
-        if (body.title.length > 50 || body.description.length > 500) {
-            return res.json({
-                error: 'vous avez depasser le nbr de caracteres'
-            })
-        } else if (body.price > 100000) {
-            return res.json({
-                error: 'Prix max est de 100 000'
-            })
-        } else {
-            //###############################################################
-/*             const search = Annonce.find(filters).populate("creator");
- */
-            await newAnnonce.save();
-            /*      console.log(newAnnonce) */
-            // on cherche tous les Annonces qui ont pour mail le mail reçu
-
-            res.json({
-                _id: newAnnonce._id,
-                title: body.title,
-                description: body.description,
-                price: body.price,
-                created: Date.now(),
-                creator: {
-                    account: {
-                        username: req.user.account.username,
-                        phone: req.user.account.phone
-                    },
-                    _id: req.user._id
-                }
-            });
-        }
-
-        // Ici renvoyer une reponse de la data de l'Annonce avec la reference de l'user
-
-    } catch (error) {
-        res.status(400).json({
-            error: error.message
-        });
-    }
+} catch (error) {
+    res.status(400).json({
+        error: error.message
+    });
+}
 
 });
 
-
+// fonction qui va construire un objet de filtres, que l'on enverra ensuite dans le find()
 const createFilters = req => {
     console.log('### req =>', req)
     const filters = {};
@@ -138,10 +117,10 @@ router.get("/offer/with-count", async (req, res) => {
 // offer/:id => Service web qui permettra de récupérer 
 //les détails concernant une annonce, en fonction de son id.
 router.get("/offer/:id", async (req, res) => {
-const id = req.params.id;
-console.log('#####=>',req.params)
+    const id = req.params.id;
+    console.log('#####=>', req.params)
     try {
-        const dataAnnonce = await  Annonce.findById(req.params.id).populate("creator");
+        const dataAnnonce = await Annonce.findById(req.params.id).populate("creator");
 
 
 
